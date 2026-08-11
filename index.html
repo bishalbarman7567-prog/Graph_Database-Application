@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dependency Risk Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="conn-banner" class="conn-banner" hidden></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">&#9670;</span>
+      <div class="brand-text">
+        <h1>Dependency Risk Explorer</h1>
+        <p class="eyebrow">Graph-mapped open-source supply chain</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="explore" role="tab" aria-selected="true">Explore</button>
+      <button class="tab" data-tab="blast" role="tab" aria-selected="false">Blast Radius</button>
+      <button class="tab" data-tab="path" role="tab" aria-selected="false">Chain Finder</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+
+    <!-- EXPLORE PANEL -->
+    <section class="panel" id="panel-explore" data-panel>
+      <aside class="sidebar">
+        <label class="field-label" for="search-input">Find a package</label>
+        <input id="search-input" class="text-input" type="text" placeholder="e.g. auth-middleware" autocomplete="off" />
+        <ul id="search-results" class="result-list"></ul>
+
+        <div id="package-detail" class="detail-card" hidden>
+          <div class="detail-header">
+            <h2 id="pkg-name"></h2>
+            <span id="pkg-ecosystem" class="badge"></span>
+          </div>
+          <p id="pkg-description" class="muted"></p>
+          <dl class="detail-grid">
+            <dt>Version</dt><dd id="pkg-version"></dd>
+            <dt>Direct dependencies</dt><dd id="pkg-deps"></dd>
+            <dt>Direct dependents</dt><dd id="pkg-dependents"></dd>
+            <dt>Maintainers</dt><dd id="pkg-maintainers"></dd>
+          </dl>
+          <button id="show-transitive" class="link-btn">View full transitive dependency tree &rarr;</button>
+          <div id="transitive-list" class="transitive-list" hidden></div>
+        </div>
+
+        <p id="explore-empty" class="empty-state">
+          Search a package name to see it on the schematic — its direct wiring lights up first,
+          and you can trace outward from there.
+        </p>
+      </aside>
+
+      <div class="canvas-wrap">
+        <svg id="graph-svg" aria-label="Dependency graph"></svg>
+        <div id="graph-loading" class="canvas-state" hidden>Wiring up the schematic&hellip;</div>
+        <div id="graph-empty" class="canvas-state">Pick a package to draw its dependency schematic.</div>
+      </div>
+    </section>
+
+    <!-- BLAST RADIUS PANEL -->
+    <section class="panel" id="panel-blast" data-panel hidden>
+      <aside class="sidebar">
+        <label class="field-label" for="maintainer-select">If this maintainer's account were compromised&hellip;</label>
+        <select id="maintainer-select" class="text-input">
+          <option value="">Choose a maintainer</option>
+        </select>
+        <p class="muted small">
+          A supply-chain compromise doesn't stop at the packages someone maintains directly —
+          it propagates to every package that depends on them, transitively. This traces that exposure.
+        </p>
+        <div id="blast-result"></div>
+      </aside>
+      <div class="canvas-wrap">
+        <div id="blast-loading" class="canvas-state" hidden>Tracing exposure paths&hellip;</div>
+        <div id="blast-empty" class="canvas-state">Select a maintainer to compute their blast radius.</div>
+        <div id="blast-viz" class="blast-viz" hidden></div>
+      </div>
+    </section>
+
+    <!-- PATH FINDER PANEL -->
+    <section class="panel" id="panel-path" data-panel hidden>
+      <aside class="sidebar">
+        <label class="field-label" for="path-from">From package</label>
+        <input id="path-from" class="text-input" type="text" placeholder="e.g. admin-dashboard" />
+        <label class="field-label" for="path-to">To package</label>
+        <input id="path-to" class="text-input" type="text" placeholder="e.g. yamlparse" />
+        <button id="path-find-btn" class="primary-btn">Find shortest chain</button>
+        <div id="path-result"></div>
+      </aside>
+      <div class="canvas-wrap">
+        <div id="path-loading" class="canvas-state" hidden>Tracing the shortest chain&hellip;</div>
+        <div id="path-empty" class="canvas-state">Enter two package names to find how they're connected.</div>
+        <div id="path-viz" class="path-viz" hidden></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
